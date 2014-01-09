@@ -24,7 +24,7 @@ export GOPATH
 unexport GOROOT GOBIN
 
 bench: go1 runtime http floats cipher megajson snappy
-extra: bench bytes strings goquery
+extra: bench bytes strings goquery time
 
 go1: $(WORK)/go1-$(OLD).txt $(WORK)/go1-$(NEW).txt
 	@echo "# go1"
@@ -64,6 +64,10 @@ snappy: $(WORK)/snappy-$(OLD).txt $(WORK)/snappy-$(NEW).txt
 
 goquery: $(WORK)/goquery-$(OLD).txt $(WORK)/goquery-$(NEW).txt
 	@echo "#goquery"
+	@$(BENCHCMP) $^
+
+time: $(WORK)/time-$(OLD).txt $(WORK)/time-$(NEW).txt
+	@echo "#time"
 	@$(BENCHCMP) $^
 
 update-$(GO_CHECKOUT): $(GO_CHECKOUT)
@@ -157,6 +161,12 @@ $(WORK)/goquery-$(OLD).txt: $(GO_OLD_BIN)
 $(WORK)/goquery-$(NEW).txt: $(GO_NEW_BIN)
 	$(GO_NEW_BIN) get -u -v -d github.com/PuerkitoBio/goquery
 	$(GO_NEW_BIN) test $(TESTFLAGS) -test.run=XXX -test.bench='.*' github.com/PuerkitoBio/goquery > $@
+
+$(WORK)/time-$(OLD).txt: $(GO_OLD_BIN)
+	$(GO_OLD_BIN) test $(TESTFLAGS) -test.run=XXX -test.bench=. bench/time > $@
+
+$(WORK)/time-$(NEW).txt: $(GO_NEW_BIN)
+	$(GO_NEW_BIN) test $(TESTFLAGS) -test.run=XXX -test.bench=. bench/time > $@
 
 clean:	
 	rm -f $(WORK)/*.txt
